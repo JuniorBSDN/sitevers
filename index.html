@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -204,7 +204,7 @@
         </div>
     </footer>
 
-   <script>
+    <script>
         document.getElementById('contactForm').addEventListener('submit', function(e) {
             e.preventDefault();
 
@@ -252,13 +252,16 @@
                 setTimeout(() => {
                     document.getElementById('successMessage').classList.remove('show');
                 }, 5000);
-            } else {Add commentMore actions
+            } else {
                 alert("Erro ao enviar: " + data.erro);
             }
-               .catch(error => {Add commentMore actions
+        })
+        .catch(error => {
             alert("Erro na requisição.");
             console.error(error);
         });
-              </script>
+    });
+
+    </script>
 </body>
 </html>
