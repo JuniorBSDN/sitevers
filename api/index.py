@@ -14,6 +14,13 @@ if not firebase_admin._apps:
 
 db = firestore.client()
 
+@app.route("/api/", methods=["POST"])
+def receber_dados():
+    dados = request.get_json()
+    db.collection("mensagens").add(dados)
+    return jsonify({"mensagem": "Dados recebidos com sucesso!"})
+
+
 @app.route("/", methods=["POST"])
 def salvar_formulario():
     dados = request.get_json()
