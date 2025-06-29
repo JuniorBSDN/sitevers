@@ -213,7 +213,7 @@ document.getElementById('contactForm').addEventListener('submit', function(e) {
     const assunto = document.getElementById('subject').value;
     const mensagem = document.getElementById('message').value;
 
-    fetch("/", {
+    fetch("/api/", { 
         method: "POST",
         headers: {
             "Content-Type": "application/json"
