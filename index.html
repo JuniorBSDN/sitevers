@@ -234,15 +234,8 @@
 
         fetch("/api/", {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                nome: nome,
-                email: email,
-                assunto: assunto,
-                mensagem: mensagem
-            })
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({nome,email,assunto,mensagem})
         })
         .then(response => response.json())
         .then(data => {
