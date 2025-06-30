@@ -11,7 +11,7 @@ CORS(app)
 
 # Firebase - usa arquivo de credenciais JSON
 if not firebase_admin._apps:
-    cred_path = os.path.join(os.path.dirname(__file__), '..', 'firebase_config.json')
+    cred_path = os.path.join(os.path.dirname(__file__), '..', 'FIREBASE_CREDENTIALS.json')
     cred = credentials.Certificate(cred_path)
     firebase_admin.initialize_app(cred)
 
