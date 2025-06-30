@@ -14,6 +14,7 @@ if not firebase_admin._apps:
         cred_dict = json.loads(os.environ.get("FIREBASE_CREDENTIALS"))
         cred = credentials.Certificate(cred_dict)
         firebase_admin.initialize_app(cred)
+        print("Firebase inicializado com sucesso!")
     except Exception as e:
         print("Erro ao inicializar Firebase:", e)
 
@@ -30,6 +31,7 @@ def salvar_formulario():
         email = dados.get("email")
         assunto = dados.get("assunto")
         mensagem = dados.get("mensagem")
+        print("📩 Dados recebidos:", nome, email, assunto, mensagem)
 
         # 🛡️ Validação simples
         if not nome or not email:
@@ -40,11 +42,28 @@ def salvar_formulario():
             "nome": nome,
             "email": email,
             "assunto": assunto,
-            "mensagem": mensagem
-        })
+            "mensagem": mensagem})
+        print("📩 Dados salvos no Firestore com sucesso!")
 
         return jsonify({"mensagem": "Dados recebidos com sucesso!"}), 200
 
     except Exception as e:
         print("❌ Erro na API:", e)
         return jsonify({"erro": "Erro interno no servidor."}), 500
+
+
+@app.route("/contatos", methods=["GET"])
+def listar_contatos():
+    try:
+        contatos_ref = db.collection("contatos").stream()
+        contatos = []
+
+        for doc in contatos_ref:
+            contato = doc.to_dict()
+            contato["id"] = doc.id
+            contatos.append(contato)
+
+        return jsonify(contatos), 200
+    except Exception as e:
+        print("❌ Erro ao listar contatos:", e)
+        return jsonify({"erro": "Erro ao listar contatos"}), 500
