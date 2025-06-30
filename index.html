@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -205,7 +205,7 @@
     </footer>
 
     <script>
-         document.getElementById('contactForm').addEventListener('submit', function(e) {
+        document.getElementById('contactForm').addEventListener('submit', function(e) {
             e.preventDefault();
 
             // Simulate form submission
@@ -222,7 +222,8 @@
                 }, 5000);
             }, 1000);
         });
-       
+
+
     document.getElementById('contactForm').addEventListener('submit', function(e) {
         e.preventDefault();
 
@@ -231,7 +232,7 @@
         const assunto = document.getElementById('subject').value;
         const mensagem = document.getElementById('message').value;
 
-        fetch("/api", {
+        fetch("/api/", {
             method: "POST",
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify({
