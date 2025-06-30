@@ -5,60 +5,34 @@ from firebase_admin import credentials, firestore
 import os
 import json
 
+# Inicializa app Flask
 app = Flask(__name__)
-CORS(app)  # 👉 Habilita CORS para todas as origens (ou defina a origem do seu front)
+CORS(app)
 
-# 🔐 Inicializar Firebase (usando variável de ambiente segura)
+# Firebase - usa arquivo de credenciais JSON
 if not firebase_admin._apps:
-    try:
-        cred_dict = json.loads(os.environ.get("FIREBASE_CREDENTIALS"))
-        cred = credentials.Certificate(cred_dict)
-        firebase_admin.initialize_app(cred)
-        print("Firebase inicializado com sucesso!")
-    except Exception as e:
-        print("Erro ao inicializar Firebase:", e)
+    cred_path = os.path.join(os.path.dirname(__file__), '..', 'firebase_config.json')
+    cred = credentials.Certificate(cred_path)
+    firebase_admin.initialize_app(cred)
 
-# 🔧 Conectar ao Firestore
 db = firestore.client()
 
-@app.route("/", methods=["POST"])
-def salvar_formulario():
-    dados = request.get_json()
-    nome = dados.get("nome")
-    email = dados.get("email")
-    assunto = dados.get("assunto")
-    mensagem = dados.get("mensagem")
-
-    if not nome or not email:
-        return jsonify({"erro": "Nome e email são obrigatórios"}), 400
-
-    db.collection("contatos").add({
-        "nome": nome,
-        "email": email,
-        "assunto": assunto,
-        "mensagem": mensagem
-    })
-
-    return jsonify({"mensagem": "Dados recebidos com sucesso!"}), 200
-
-
-    except Exception as e:
-        print("❌ Erro na API:", e)
-        return jsonify({"erro": "Erro interno no servidor."}), 500
-
-
-@app.route("/contatos", methods=["GET"])
-def listar_contatos():
+@app.route("/api/", methods=["POST"])
+def salvar_contato():
     try:
-        contatos_ref = db.collection("contatos").stream()
-        contatos = []
+        dados = request.get_json()
 
-        for doc in contatos_ref:
-            contato = doc.to_dict()
-            contato["id"] = doc.id
-            contatos.append(contato)
+        if not all(k in dados for k in ("nome", "email", "assunto")):
+            return jsonify({"erro": "Campos obrigatórios faltando."}), 400
 
-        return jsonify(contatos), 200
+        doc_ref = db.collection("contatos").add({
+            "nome": dados["nome"],
+            "email": dados["email"],
+            "assunto": dados["assunto"],
+            "mensagem": dados.get("mensagem", ""),
+        })
+
+        return jsonify({"mensagem": "Solicitação registrada com sucesso."}), 200
+
     except Exception as e:
-        print("❌ Erro ao listar contatos:", e)
-        return jsonify({"erro": "Erro ao listar contatos"}), 500
+        return jsonify({"erro": str(e)}), 500
