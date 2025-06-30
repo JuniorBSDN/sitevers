@@ -232,7 +232,7 @@
         const assunto = document.getElementById('subject').value;
         const mensagem = document.getElementById('message').value;
 
-        fetch("/api/", {
+        fetch("/api", {
             method: "POST",
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify({
