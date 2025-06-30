@@ -5,6 +5,7 @@ import os
 import json
 
 app = Flask(__name__)
+CORS(app)
 
 # Inicializar Firebase com variável de ambiente segura
 if not firebase_admin._apps:
