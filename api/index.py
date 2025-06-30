@@ -23,29 +23,24 @@ db = firestore.client()
 
 @app.route("/", methods=["POST"])
 def salvar_formulario():
-    try:
-        dados = request.get_json()
-        print("📩 Requisição recebida:", dados)
+    dados = request.get_json()
+    nome = dados.get("nome")
+    email = dados.get("email")
+    assunto = dados.get("assunto")
+    mensagem = dados.get("mensagem")
 
-        nome = dados.get("nome")
-        email = dados.get("email")
-        assunto = dados.get("assunto")
-        mensagem = dados.get("mensagem")
-        print("📩 Dados recebidos:", nome, email, assunto, mensagem)
+    if not nome or not email:
+        return jsonify({"erro": "Nome e email são obrigatórios"}), 400
 
-        # 🛡️ Validação simples
-        if not nome or not email:
-            return jsonify({"erro": "Nome e email são obrigatórios"}), 400
+    db.collection("contatos").add({
+        "nome": nome,
+        "email": email,
+        "assunto": assunto,
+        "mensagem": mensagem
+    })
 
-        # 📥 Salvar no Firestore
-        db.collection("contatos").add({
-            "nome": nome,
-            "email": email,
-            "assunto": assunto,
-            "mensagem": mensagem})
-        print("📩 Dados salvos no Firestore com sucesso!")
+    return jsonify({"mensagem": "Dados recebidos com sucesso!"}), 200
 
-        return jsonify({"mensagem": "Dados recebidos com sucesso!"}), 200
 
     except Exception as e:
         print("❌ Erro na API:", e)
