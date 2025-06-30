@@ -1,6 +1,7 @@
 import firebase_admin
 from firebase_admin import credentials, firestore
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 import os
 import json
 
