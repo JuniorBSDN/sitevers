@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Painel de Contatos</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-6">
+  <h1 class="text-3xl font-bold mb-6 text-center">Painel de Contatos</h1>
+
+  <div class="overflow-x-auto">
+    <table class="min-w-full bg-white shadow-md rounded-lg">
+      <thead class="bg-indigo-600 text-white">
+        <tr>
+          <th class="py-3 px-6 text-left">Nome</th>
+          <th class="py-3 px-6 text-left">E-mail</th>
+          <th class="py-3 px-6 text-left">Assunto</th>
+          <th class="py-3 px-6 text-left">Mensagem</th>
+        </tr>
+      </thead>
+      <tbody id="tabelaContatos" class="text-gray-700"></tbody>
+    </table>
+  </div>
+
+  <script>
+    fetch("https://sitevers.vercel.app/api/contatos")
+      .then(response => response.json())
+      .then(data => {
+        const tabela = document.getElementById("tabelaContatos");
+
+        data.forEach(contato => {
+          const linha = `
+            <tr class="border-t">
+              <td class="py-2 px-6">${contato.nome}</td>
+              <td class="py-2 px-6">${contato.email}</td>
+              <td class="py-2 px-6">${contato.assunto}</td>
+              <td class="py-2 px-6">${contato.mensagem}</td>
+            </tr>
+          `;
+          tabela.innerHTML += linha;
+        });
+      })
+      .catch(error => {
+        console.error("Erro ao carregar contatos:", error);
+        alert("Erro ao carregar os dados.");
+      });
+  </script>
+</body>
+</html>
