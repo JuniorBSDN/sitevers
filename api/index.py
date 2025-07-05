@@ -3,16 +3,21 @@ from flask_cors import CORS
 import firebase_admin
 from firebase_admin import credentials, firestore
 import os
+import json
+import base64
 
 app = Flask(__name__)
 CORS(app)
 
-# Inicializar Firebase apenas uma vez
+
+
+
+firebase_credentials = os.environ.get("FIREBASE_CREDENTIALS")
+
 if not firebase_admin._apps:
-    try:
-        cred_path = os.path.join(os.path.dirname(__file__), 'FIREBASE_CREDENTIALS.json')
-        cred = credentials.Certificate(cred_path)
-        firebase_admin.initialize_app(cred)
+    cred_dict = json.loads(firebase_credentials)
+    cred = credentials.Certificate(cred_dict)
+    firebase_admin.initialize_app(cred)
         db = firestore.client()
     except Exception as e:
         print(f"Erro ao inicializar Firebase: {e}")
