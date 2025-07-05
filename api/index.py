@@ -9,9 +9,6 @@ import base64
 app = Flask(__name__)
 CORS(app)
 
-
-
-
 firebase_credentials = os.environ.get("FIREBASE_CREDENTIALS")
 
 if not firebase_admin._apps:
