@@ -205,28 +205,10 @@
     </footer>
 
     <script>
-        document.getElementById('contactForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-
-            // Simulate form submission
-            setTimeout(() => {
-                // Show success message
-                document.getElementById('successMessage').classList.add('show');
-
-                // Reset form
-                this.reset();
-
-                // Hide success message after 5 seconds
-                setTimeout(() => {
-                    document.getElementById('successMessage').classList.remove('show');
-                }, 5000);
-            }, 1000);
-        });
-
-
     document.getElementById('contactForm').addEventListener('submit', function(e) {
         e.preventDefault();
 
+        const form = this;
         const nome = document.getElementById('name').value;
         const email = document.getElementById('email').value;
         const assunto = document.getElementById('subject').value;
@@ -234,7 +216,7 @@
 
         fetch("/api/", {
             method: "POST",
-            headers: {"Content-Type": "application/json"},
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 nome: nome,
                 email: email,
@@ -242,25 +224,30 @@
                 mensagem: mensagem
             })
         })
-
         .then(response => response.json())
         .then(data => {
             if (data.mensagem) {
-                document.getElementById('successMessage').classList.add('show');
-                this.reset();
+                // Exibir mensagem de sucesso
+                const successMessage = document.getElementById('successMessage');
+                successMessage.classList.add('show');
+
+                // Resetar o formulário
+                form.reset();
+
+                // Ocultar após 5 segundos
                 setTimeout(() => {
-                    document.getElementById('successMessage').classList.remove('show');
+                    successMessage.classList.remove('show');
                 }, 5000);
             } else {
-                alert("Erro ao enviar: " + data.erro);
+                alert("Erro ao enviar: " + (data.erro || "Resposta inválida do servidor."));
             }
-})
+        })
         .catch(error => {
             alert("Erro na requisição.");
             console.error(error);
         });
     });
 
-    </script>
+</script>
 </body>
 </html>
