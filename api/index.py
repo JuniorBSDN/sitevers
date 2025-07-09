@@ -8,22 +8,20 @@ import json
 app = Flask(__name__)
 CORS(app)
 
-# Inicialização do Firebase
-try:
-    if not firebase_admin._apps:
+# Firebase com variável de ambiente
+if not firebase_admin._apps:
+    try:
         firebase_json = os.environ.get("FIREBASE_CREDENTIALS")
-
-        if not firebase_json:
-            raise ValueError("Variável FIREBASE_CREDENTIALS não encontrada.")
-
         cred_dict = json.loads(firebase_json)
         cred = credentials.Certificate(cred_dict)
         firebase_admin.initialize_app(cred)
-
+        db = firestore.client()
+    except Exception as e:
+        print(f"Erro ao inicializar Firebase: {e}")
+        db = None
+else:
     db = firestore.client()
-except Exception as e:
-    print(f"Erro ao inicializar Firebase: {e}")
-    db = None  # Garante que não quebra o app
+
 
 @app.route("/api/", methods=["POST"])
 def salvar_contato():
@@ -31,22 +29,15 @@ def salvar_contato():
         return jsonify({"erro": "Banco de dados não conectado."}), 500
 
     try:
-        dados = request.get_json(force=True)
-        nome = dados.get("nome", "").strip()
-        email = dados.get("email", "").strip()
-        assunto = dados.get("assunto", "").strip()
-        mensagem = dados.get("mensagem", "").strip()
-
-        # Validação mínima
-        if not nome or not email or not assunto:
+        dados = request.get_json()
+        if not all(dados.get(k) for k in ("nome", "email", "assunto")):
             return jsonify({"erro": "Campos obrigatórios faltando."}), 400
 
-        # Salvar no Firestore
         db.collection("contatos").add({
-            "nome": nome,
-            "email": email,
-            "assunto": assunto,
-            "mensagem": mensagem
+            "nome": dados["nome"],
+            "email": dados["email"],
+            "assunto": dados["assunto"],
+            "mensagem": dados.get("mensagem", "")
         })
 
         return jsonify({"mensagem": "Solicitação registrada com sucesso."}), 200
