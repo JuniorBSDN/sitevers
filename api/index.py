@@ -11,7 +11,7 @@ CORS(app)
 # Firebase com variável de ambiente
 if not firebase_admin._apps:
     try:
-        firebase_json = os.environ.get("FIREBASE_CREDENTIALS")
+        firebase_json = os.environ.get("FIREDB")
         cred_dict = json.loads(firebase_json)
         cred = credentials.Certificate(cred_dict)
         firebase_admin.initialize_app(cred)
