@@ -8,40 +8,33 @@ import json
 app = Flask(__name__)
 CORS(app)
 
-# Firebase com variável de ambiente
+# Conexão com Firebase usando variável de ambiente FIREBASE_CREDENTIALS
 if not firebase_admin._apps:
-    try:
-        firebase_json = os.environ.get("FIREBASE_CREDENTIALS")
+    firebase_json = os.environ.get("FIREBASE_CREDENTIALS")
+    if firebase_json:
         cred_dict = json.loads(firebase_json)
         cred = credentials.Certificate(cred_dict)
         firebase_admin.initialize_app(cred)
         db = firestore.client()
-    except Exception as e:
-        print(f"Erro ao inicializar Firebase: {e}")
-        db = None
-else:
-    db = firestore.client()
-
+    else:
+        raise Exception("Variável de ambiente FIREBASE_CREDENTIALS não encontrada")
 
 @app.route("/api/", methods=["POST"])
 def salvar_contato():
-    if not db:
-        return jsonify({"erro": "Banco de dados não conectado."}), 500
-
     try:
         dados = request.get_json()
-        if not all(dados.get(k) for k in ("nome", "email", "assunto")):
+
+        if not all(k in dados for k in ("nome", "email", "assunto")):
             return jsonify({"erro": "Campos obrigatórios faltando."}), 400
 
-        db.collection("contatos").add({
+        doc_ref = db.collection("contatos").add({
             "nome": dados["nome"],
             "email": dados["email"],
             "assunto": dados["assunto"],
             "mensagem": dados.get("mensagem", "")
         })
 
-        return jsonify({"mensagem": "Solicitação registrada com sucesso."}), 200
+        return jsonify({"mensagem": "Solicitação registrada com sucesso.", "id": doc_ref[1].id}), 200
 
     except Exception as e:
-        print(f"Erro ao salvar no Firestore: {e}")
-        return jsonify({"erro": "Erro interno ao salvar"}), 500
+        return jsonify({"erro": str(e)}), 500
