@@ -8,33 +8,46 @@ import json
 app = Flask(__name__)
 CORS(app)
 
-# Conexão com Firebase usando variável de ambiente FIREBASE_CREDENTIALS
+# Inicialização segura do Firebase Admin com variável de ambiente
 if not firebase_admin._apps:
-    firebase_json = os.environ.get("FIREBASE_CREDENTIALS")
-    if firebase_json:
-        cred_dict = json.loads(firebase_json)
-        cred = credentials.Certificate(cred_dict)
+    firebase_cred_json = os.environ.get("FIREBASE_CREDENTIALS")
+    if firebase_cred_json:
+        cred = credentials.Certificate(json.loads(firebase_cred_json))
         firebase_admin.initialize_app(cred)
-        db = firestore.client()
     else:
-        raise Exception("Variável de ambiente FIREBASE_CREDENTIALS não encontrada")
+        raise Exception("❌ A variável FIREBASE_CREDENTIALS não foi encontrada no ambiente.")
 
-@app.route("/api/", methods=["POST"])
-def salvar_contato():
+# Cliente Firestore
+db = firestore.client()
+
+@app.route("/", methods=["GET"])
+def index():
+    return jsonify({"mensagem": "API operando com Firestore no Vercel."})
+
+@app.route("/api/contato", methods=["POST"])
+def contato():
     try:
-        dados = request.get_json()
+        data = request.get_json()
 
-        if not all(k in dados for k in ("nome", "email", "assunto")):
-            return jsonify({"erro": "Campos obrigatórios faltando."}), 400
+        # Campos esperados do formulário
+        nome = data.get("nome")
+        email = data.get("email")
+        assunto = data.get("assunto")
+        mensagem = data.get("mensagem")
 
-        doc_ref = db.collection("contatos").add({
-            "nome": dados["nome"],
-            "email": dados["email"],
-            "assunto": dados["assunto"],
-            "mensagem": dados.get("mensagem", "")
+        if not all([nome, email, assunto, mensagem]):
+            return jsonify({"erro": "Todos os campos são obrigatórios."}), 400
+
+        # Salvar no Firestore
+        db.collection("contatos").add({
+            "nome": nome,
+            "email": email,
+            "assunto": assunto,
+            "mensagem": mensagem
         })
 
-        return jsonify({"mensagem": "Solicitação registrada com sucesso.", "id": doc_ref[1].id}), 200
+        return jsonify({"mensagem": "Contato registrado com sucesso!"}), 200
 
     except Exception as e:
-        return jsonify({"erro": str(e)}), 500
+        print(f"Erro no backend: {e}")
+        return jsonify({"erro": "Erro ao registrar contato."}), 500
