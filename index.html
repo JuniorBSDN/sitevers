@@ -197,48 +197,34 @@
     </footer>
 
     <script>
-    document.getElementById('#contactForm').addEventListener('submit', function(e) {
+    document.querySelector("#contactForm").addEventListener('submit', function(e) {
         e.preventDefault();
-
-        const form = this;
-        const nome = document.getElementById('#name').value;
-        const email = document.getElementById('#email').value;
-        const assunto = document.getElementById('#subject').value;
-        const mensagem = document.getElementById('#message').value;
+         const dados = {
+    nome: document.querySelector("#name").value.trim(),
+    email: document.querySelector("#email").value.trim(),
+    assunto: document.querySelector("#subject").value.trim(),
+    mensagen: document.querySelector("#message").value.trim(),
+  };
 
         fetch("/api/", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                nome: nome,
-                email: email,
-                assunto: assunto,
-                mensagem: mensagem
-            })
+            body: JSON.stringify(dados)
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.mensagem) {
-                // Exibir mensagem de sucesso
-                const successMessage = document.getElementById('successMessage');
-                successMessage.classList.add('show');
-
-                // Resetar o formulário
-                form.reset();
-
-                // Ocultar após 5 segundos
-                setTimeout(() => {
-                    successMessage.classList.remove('show');
-                }, 5000);
-            } else {
-                alert("Erro ao enviar: " + (data.erro || "Resposta inválida do servidor."));
-            }
-        })
-        .catch(error => {
-            alert("Erro na requisição.");
-            console.error(error);
-        });
-    });
+         .then(res => res.json())
+  .then(data => {
+    if (data.status === "sucesso") {
+      alert("Denúncia enviada com sucesso!");
+      document.querySelector("#reportForm").reset();
+    } else {
+      alert("Erro: " + data.mensagem);
+    }
+  })
+  .catch(err => {
+    console.error("Erro:", err);
+    alert("Erro de conexão ao enviar denúncia.");
+  });
+});
 
 </script>
 </body>
