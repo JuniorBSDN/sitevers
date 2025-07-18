@@ -196,36 +196,37 @@
         </div>
     </footer>
 
-    <script>
-    document.querySelector("#contactForm").addEventListener('submit', function(e) {
-        e.preventDefault();
-         const dados = {
-    nome: document.querySelector("#name").value.trim(),
-    email: document.querySelector("#email").value.trim(),
-    assunto: document.querySelector("#subject").value.trim(),
-    mensagen: document.querySelector("#message").value.trim(),
-  };
+<script>
+document.querySelector("#contactForm").addEventListener('submit', function(e) {
+    e.preventDefault();
 
-        fetch("/api/", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(dados)
-        })
-         .then(res => res.json())
-  .then(data => {
-    if (data.status === "sucesso") {
-      alert("Denúncia enviada com sucesso!");
-      document.querySelector("#reportForm").reset();
-    } else {
-      alert("Erro: " + data.mensagem);
-    }
-  })
-  .catch(err => {
-    console.error("Erro:", err);
-    alert("Erro de conexão ao enviar denúncia.");
-  });
+    const dados = {
+        nome: document.querySelector("#name").value.trim(),
+        email: document.querySelector("#email").value.trim(),
+        assunto: document.querySelector("#subject").value.trim(),
+        mensagem: document.querySelector("#message").value.trim()
+    };
+
+    fetch("/api/contato", { // Altere se seu endpoint for outro
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(dados)
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.status === "sucesso" || data.message === "ok") {
+            document.querySelector("#successMessage").classList.add("show");
+            document.querySelector("#contactForm").reset();
+        } else {
+            alert("Erro: " + (data.mensagem || data.error));
+        }
+    })
+    .catch(err => {
+        console.error("Erro:", err);
+        alert("Erro de conexão com o servidor.");
+    });
 });
-
 </script>
+
 </body>
 </html>
